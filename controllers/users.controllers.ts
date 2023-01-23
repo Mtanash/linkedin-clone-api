@@ -50,3 +50,22 @@ export const getAllUsers = async (
     next(error);
   }
 };
+
+export const getUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId: string = req.params.userId;
+
+    const user = await UserModel.findById(userId);
+
+    if (!user)
+      res.status(400).json({ status: "error", message: "user not found" });
+
+    res.status(200).json({ status: "success", message: "success", data: user });
+  } catch (error) {
+    next(error);
+  }
+};

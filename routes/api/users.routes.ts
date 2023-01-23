@@ -1,12 +1,16 @@
 import { Router } from "express";
-import { createUser, getAllUsers } from "../../controllers/users.controllers";
+import {
+  createUser,
+  getAllUsers,
+  getUser,
+} from "../../controllers/users.controllers";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 
 const routes = Router();
 // api/users
 routes.route("/").post(createUser);
 routes.route("/").get(authenticationMiddleware, getAllUsers);
-// routes.route('/:id').get(authenticationMiddleware, controllers.getOne)
+routes.route("/:userId").get(authenticationMiddleware, getUser);
 // routes.route('/:id').patch(authenticationMiddleware, controllers.updateOne)
 // routes.route('/:id').delete(authenticationMiddleware, controllers.deleteOne)
 // // authentication
