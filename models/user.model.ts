@@ -13,10 +13,33 @@ interface IUser {
 // 2. Create a Schema corresponding to the document interface.
 const userSchema = new Schema<IUser>(
   {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    email: { type: String, required: true },
-    password: { type: String, required: true },
+    firstName: {
+      type: String,
+      required: [true, "Please provide a first name"],
+      minLength: [3, "Please provide a minimum length of 4 characters"],
+    },
+    lastName: {
+      type: String,
+      required: [true, "Please provide a last name"],
+      minLength: [3, "Please provide a minimum length of 4 characters"],
+    },
+    email: {
+      type: String,
+      required: [true, "Please provide an email"],
+      minLength: [3, "Please provide a minimum length of 4 characters"],
+      trim: true,
+      lowercase: true,
+      unique: true,
+      validate: {
+        validator: function (v: string) {
+          return !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+            v
+          );
+        },
+        message: (props) => `${props.value} is not a valid email!`,
+      },
+    },
+    password: { type: String, required: [true, "Please provide a password"] },
     avatar: String,
   },
   {

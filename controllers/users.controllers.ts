@@ -31,6 +31,22 @@ export const createUser = async (
       data: { user, accessToken },
     });
   } catch (error) {
-    throw new Error("Error: create user failed" + (error as Error).message);
+    next(error);
+  }
+};
+
+export const getAllUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const users = await UserModel.find();
+
+    res
+      .status(200)
+      .json({ status: "success", message: "success", data: users });
+  } catch (error) {
+    next(error);
   }
 };
