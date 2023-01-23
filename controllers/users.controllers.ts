@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import UserModel from "../models/user.model";
 import User from "../types/user.type";
+import jwt from "jsonwebtoken";
 
 export const createUser = async (
   req: Request,
@@ -18,13 +19,17 @@ export const createUser = async (
       avatar,
     });
 
-    res
-      .status(201)
-      .json({
-        status: "success",
-        message: "User created successfully",
-        data: user,
-      });
+    const TOKEN_SECRET = process.env.TOKEN_SECRET as string;
+    const accessToken = jwt.sign(
+      { id: user._id, email: user.email },
+      TOKEN_SECRET
+    );
+
+    res.status(201).json({
+      status: "success",
+      message: "User created successfully",
+      data: { user, accessToken },
+    });
   } catch (error) {
     throw new Error("Error: create user failed" + (error as Error).message);
   }
