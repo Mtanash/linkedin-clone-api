@@ -24,19 +24,14 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", function (next) {
   const user = this;
   if (this.isModified("password")) {
     const saltRounds = process.env.SALT_ROUNDS as string;
-    const hashedPassword = await bcrypt.hash(
-      user.password,
-      parseInt(saltRounds)
-    );
+    const hashedPassword = bcrypt.hashSync(user.password, parseInt(saltRounds));
     user.password = hashedPassword;
-    next();
-  } else {
-    next();
   }
+  next();
 });
 
 // 3. Create a Model.
