@@ -1,5 +1,10 @@
-import { Schema, model } from "mongoose";
+import jwt from "jsonwebtoken";
+import { Model, Schema, Types, model } from "mongoose";
 import bcrypt from "bcrypt";
+import isEmail from "validator/lib/isEmail";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // 1. Create an interface representing a document in MongoDB.
 interface IUser {
@@ -8,10 +13,16 @@ interface IUser {
   email: string;
   password: string;
   avatar?: string;
+  posts: Types.ObjectId[];
+}
+
+interface IUserModel extends Model<IUser> {
+  authenticate: (email: string, password: string) => Promise<IUser | null>;
+  generateAccessToken: (id: string, email: string) => string;
 }
 
 // 2. Create a Schema corresponding to the document interface.
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUser, IUserModel>(
   {
     firstName: {
       type: String,
@@ -32,18 +43,56 @@ const userSchema = new Schema<IUser>(
       unique: true,
       validate: {
         validator: function (v: string) {
-          return !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
-            v
-          );
+          return isEmail(v);
         },
         message: (props) => `${props.value} is not a valid email!`,
       },
     },
     password: { type: String, required: [true, "Please provide a password"] },
     avatar: String,
+    posts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
   },
   {
     timestamps: true,
+  }
+);
+
+userSchema.static(
+  "authenticate",
+  async function authenticate(email: string, password: string) {
+    try {
+      const User: IUserModel = this;
+      const user = await User.findOne({ email: email.toLowerCase() });
+
+      if (!user) throw new Error("Email or password are incorrect");
+
+      const passwordMatched = bcrypt.compareSync(password, user.password);
+      if (!passwordMatched) throw new Error("Email or password are incorrect");
+
+      return user;
+    } catch (error) {
+      throw new Error(
+        `Unable to Login: ${(error as { message: string }).message as string}`
+      );
+    }
+  }
+);
+
+userSchema.static(
+  "generateAccessToken",
+  function generateAccessToken(id, email) {
+    try {
+      return jwt.sign({ id, email }, process.env.JWT_SECRET as string, {
+        expiresIn: process.env.ACCESS_TOKEN_TIME_HOURES as string,
+      });
+    } catch (error) {
+      throw new Error(`Something went wrong. ${(error as Error).message}`);
+    }
   }
 );
 
@@ -58,6 +107,6 @@ userSchema.pre("save", function (next) {
 });
 
 // 3. Create a Model.
-const User = model<IUser>("User", userSchema);
+const UserModel = model<IUser, IUserModel>("User", userSchema);
 
-export default User;
+export default UserModel;

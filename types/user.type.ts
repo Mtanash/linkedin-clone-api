@@ -5,6 +5,7 @@ type User = {
   lastName: string;
   password: string;
   avatar?: string;
+  posts: string[];
 };
 
 export default User;

@@ -22,7 +22,7 @@ const validateTokenMiddleware = (
       const bearer = authHeader.split(" ")[0].toLowerCase();
       const token = authHeader.split(" ")[1];
       if (token && bearer === "bearer") {
-        const decode = jwt.verify(token, process.env.TOKEN_SECRET as string);
+        const decode = jwt.verify(token, process.env.JWT_SECRET as string);
         if (decode) {
           next();
         } else {
