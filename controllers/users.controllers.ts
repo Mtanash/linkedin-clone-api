@@ -25,10 +25,14 @@ export const createUser = async (
       user.email
     );
 
+    res.cookie("jwt", accessToken, {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true,
+    });
     res.status(201).json({
       status: "success",
       message: "User created successfully",
-      data: { user, accessToken },
+      data: user,
     });
   } catch (error) {
     next(error);
@@ -99,10 +103,14 @@ export const loginUser = async (
       user.email
     );
 
+    res.cookie("jwt", accessToken, {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true,
+    });
     res.status(200).json({
       status: "success",
       message: "login successful",
-      data: { user, accessToken },
+      data: user,
     });
   } catch (error) {
     next(error);

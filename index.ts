@@ -6,11 +6,17 @@ import helmet from "helmet";
 import morgan from "morgan";
 import errorMiddleware from "./middleware/error.middleware";
 import routes from "./routes";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
 const app: Application = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(cors());
+app.options("*", cors());
 app.use(helmet());
 app.use(morgan("common"));
 const port = process.env.PORT;

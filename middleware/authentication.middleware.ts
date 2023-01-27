@@ -17,24 +17,18 @@ const validateTokenMiddleware = (
   next: NextFunction
 ) => {
   try {
-    const authHeader = req.get("Authorization");
-    if (authHeader) {
-      const bearer = authHeader.split(" ")[0].toLowerCase();
-      const token = authHeader.split(" ")[1];
-      if (token && bearer === "bearer") {
-        const decode = jwt.verify(token, process.env.JWT_SECRET as string);
-        if (decode) {
-          next();
-        } else {
-          // Failed to authenticate user.
-          handleUnauthorizedError(next);
-        }
-      } else {
-        // token type not bearer
-        handleUnauthorizedError(next);
-      }
+    const cookies = req.cookies;
+
+    if (!cookies?.jwt) handleUnauthorizedError(next);
+
+    const accessToken = cookies.jwt;
+
+    const decode = jwt.verify(accessToken, process.env.JWT_SECRET as string);
+
+    if (decode) {
+      next();
     } else {
-      // No Token Provided.
+      // Failed to authenticate user.
       handleUnauthorizedError(next);
     }
   } catch (err) {
