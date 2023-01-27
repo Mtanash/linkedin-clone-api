@@ -14,9 +14,13 @@ dotenv.config();
 const app: Application = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: "*",
+    credentials: true, //access-control-allow-credentials:true
+  })
+);
 app.use(cookieParser());
-app.use(cors());
-app.options("*", cors());
 app.use(helmet());
 app.use(morgan("common"));
 const port = process.env.PORT;

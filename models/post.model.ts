@@ -1,14 +1,14 @@
 import { Schema, Types, model } from "mongoose";
 
 interface IPost {
-  userId: Types.ObjectId;
+  user: Types.ObjectId;
   text: string;
   image?: string;
 }
 
 const postSchema = new Schema<IPost>(
   {
-    userId: {
+    user: {
       type: Schema.Types.ObjectId,
       required: true,
       ref: "User",

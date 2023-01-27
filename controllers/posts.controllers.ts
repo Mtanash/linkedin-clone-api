@@ -10,33 +10,47 @@ export const createPost = async (
   next: NextFunction
 ) => {
   try {
-    const { text, userId, image }: Post = req.body;
+    const { text, user, image }: Post = req.body;
 
-    if (!Types.ObjectId.isValid(userId))
+    if (!Types.ObjectId.isValid(user))
       return res
         .status(404)
         .json({ status: "error", message: "Please provide a valid user ID." });
 
-    const post = await PostModel.create({ userId, text, image });
+    const post = await PostModel.create({ user, text, image });
 
-    const user = await UserModel.findById(userId);
+    const userObject = await UserModel.findById(user);
 
-    if (!user)
+    if (!userObject)
       return res
         .status(404)
         .json({ status: "error", message: "user not found." });
 
-    user.posts.push(post._id);
+    userObject.posts.push(post._id);
 
-    await user.save();
+    await userObject.save();
 
-    res
-      .status(201)
-      .json({
-        status: "success",
-        message: "post created successfully",
-        data: post,
-      });
+    res.status(201).json({
+      status: "success",
+      message: "post created successfully",
+      data: post,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPosts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const posts = await PostModel.find()
+      .populate("user", "avatar firstName lastName")
+      .sort("-createdAt");
+
+    res.status(200).json({ status: "success", data: posts });
   } catch (error) {
     next(error);
   }
