@@ -6,6 +6,7 @@ type User = {
   password: string;
   avatar?: string;
   posts: string[];
+  likedPosts: string[];
 };
 
 export default User;

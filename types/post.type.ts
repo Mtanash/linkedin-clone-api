@@ -3,6 +3,7 @@ type Post = {
   text: string;
   image?: string;
   user: string;
+  likes: string[];
 };
 
 export default Post;

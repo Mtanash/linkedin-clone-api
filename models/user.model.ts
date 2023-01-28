@@ -14,6 +14,7 @@ interface IUser {
   password: string;
   avatar?: string;
   posts: Types.ObjectId[];
+  likedPosts: Types.ObjectId[];
 }
 
 interface IUserModel extends Model<IUser> {
@@ -51,6 +52,12 @@ const userSchema = new Schema<IUser, IUserModel>(
     password: { type: String, required: [true, "Please provide a password"] },
     avatar: String,
     posts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
+    likedPosts: [
       {
         type: Schema.Types.ObjectId,
         ref: "Post",
