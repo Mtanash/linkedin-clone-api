@@ -5,6 +5,7 @@ interface IPost {
   text: string;
   image?: string;
   likes: Types.ObjectId[];
+  comments: Types.ObjectId[];
 }
 
 const postSchema = new Schema<IPost>(
@@ -25,6 +26,12 @@ const postSchema = new Schema<IPost>(
       {
         type: Schema.Types.ObjectId,
         ref: "User",
+      },
+    ],
+    comments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Comment",
       },
     ],
   },
