@@ -32,11 +32,13 @@ export const addComment = async (
         .status(404)
         .json({ status: "failed", message: "No post found" });
 
-    const comment = await CommentModel.create({
+    const comment = await new CommentModel({
       user: userId,
       post: postId,
       text,
-    });
+    }).populate("user", "_id firstName lastName avatar");
+
+    await comment.save();
 
     post.comments.push(comment._id);
     await post.save();
@@ -58,6 +60,34 @@ export const getComments = async (
 ) => {
   try {
     const comments = await CommentModel.find().populate(
+      "user",
+      "_id firstName lastName avatar"
+    );
+
+    res.status(200).json({ status: "success", data: comments });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getComment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const postId = req.params.postId;
+    if (!postId)
+      return res
+        .status(404)
+        .json({ status: "failed", message: "Please provide a post id" });
+
+    if (!Types.ObjectId.isValid(postId))
+      return res
+        .status(404)
+        .json({ status: "failed", message: "Please provide a valid post id" });
+
+    const comments = await CommentModel.find({ post: postId }).populate(
       "user",
       "_id firstName lastName avatar"
     );
