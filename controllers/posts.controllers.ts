@@ -65,12 +65,10 @@ export const likePost = async (
     const { post, user }: { post: string; user: string } = req.body;
 
     if (!post || !user)
-      return res
-        .status(404)
-        .json({
-          status: "failed",
-          message: "Please provide post id and user id",
-        });
+      return res.status(404).json({
+        status: "failed",
+        message: "Please provide post id and user id",
+      });
 
     const targetPost = await PostModel.findById(post);
     const targetUser = await UserModel.findById(user);
@@ -89,6 +87,39 @@ export const likePost = async (
     res
       .status(200)
       .json({ status: "success", message: "Post liked successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPostStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const postId = req.params.postId;
+
+    if (!postId)
+      return res
+        .status(404)
+        .json({ status: "failed", message: "Please provide post id" });
+
+    if (!Types.ObjectId.isValid(postId))
+      return res
+        .status(404)
+        .json({ status: "failed", message: "Please provide a valid post id" });
+
+    const post = await PostModel.findById(postId)
+      .populate("likes", "_id firstName lastName")
+      .select("_id user likes comments");
+
+    if (!post)
+      return res
+        .status(400)
+        .json({ status: "failed", message: "No posts found with this id" });
+
+    res.status(200).json({ status: "success", data: post });
   } catch (error) {
     next(error);
   }
